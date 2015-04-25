@@ -1,5 +1,5 @@
 /// <reference path="model/TodoListModel.ts" />
-/// <reference path="../common/Delegator.ts" />
+/// <reference path="../common/EventDispatcher.ts" />
 /// <reference path="notification/item_added/ItemAddedCallback.ts" />
 /// <reference path="notification/item_added/ItemAddedEvent.ts" />
 /// <reference path="notification/item_added/ItemAddedDelegate.ts" />
@@ -11,10 +11,10 @@
 
 class TodoListFacade {
 	model:TodoListModel;
-	delegator:Delegator;
+	delegator:EventDispatcher;
 
 	constructor() {
-		this.delegator = new Delegator();
+		this.delegator = new EventDispatcher();
 		this.model = new TodoListModel( this.delegator );
 	}
 

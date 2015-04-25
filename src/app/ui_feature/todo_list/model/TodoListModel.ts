@@ -1,13 +1,13 @@
-/// <reference path="../../common/Delegator.ts"/>
+/// <reference path="../../common/EventDispatcher.ts"/>
 /// <reference path="../domain/Item.ts"/>
 /// <reference path="../notification/item_added/ItemAddedEvent.ts"/>
 /// <reference path="../notification/item_removed/ItemRemovedEvent.ts"/>
 
 class TodoListModel {
 	items;
-	delegator:Delegator;
+	delegator:EventDispatcher;
 
-	constructor( delegator:Delegator ) {
+	constructor( delegator:EventDispatcher ) {
 		this.delegator = delegator;
 		this.items = [];
 	}

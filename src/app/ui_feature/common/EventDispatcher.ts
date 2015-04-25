@@ -1,7 +1,7 @@
 /// <reference path="Delegate.ts" />
 /// <reference path="ModelEvent.ts" />
 
-class Delegator {
+class EventDispatcher {
 	delegates = {};
 	
 	addDelegate( eventName:string, delegate:Delegate ) {
