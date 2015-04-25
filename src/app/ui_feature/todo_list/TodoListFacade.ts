@@ -30,12 +30,12 @@ class TodoListFacade {
 			new ItemRemovedDelegate(callback) );
 	}
 
-	getAddItemCommand() {
+	getAddItemCommand():AddItemCommand {
 		var command:AddItemCommand = new AddItemCommand(this.model);
 		return command;
 	}
 
-	getRemoveItemCommand() {
+	getRemoveItemCommand():RemoveItemCommand {
 		var command:RemoveItemCommand = new RemoveItemCommand( this.model );
 		return command;
 	}
