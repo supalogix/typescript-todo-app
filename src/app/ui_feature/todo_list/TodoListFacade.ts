@@ -1,11 +1,13 @@
-/// <reference path="TodoListModel.ts" />
-/// <reference path="Delegator.ts" />
-/// <reference path="ItemAddedCallback.ts" />
-/// <reference path="ItemRemovedCallback.ts" />
-/// <reference path="ItemRemovedEvent.ts" />
-/// <reference path="ItemAddedEvent.ts" />
-/// <reference path="AddItemCommand.ts" />
-/// <reference path="RemoveItemCommand.ts" />
+/// <reference path="model/TodoListModel.ts" />
+/// <reference path="../common/Delegator.ts" />
+/// <reference path="notification/item_added/ItemAddedCallback.ts" />
+/// <reference path="notification/item_added/ItemAddedEvent.ts" />
+/// <reference path="notification/item_added/ItemAddedDelegate.ts" />
+/// <reference path="notification/item_removed/ItemRemovedCallback.ts" />
+/// <reference path="notification/item_removed/ItemRemovedDelegate.ts" />
+/// <reference path="notification/item_removed/ItemRemovedEvent.ts" />
+/// <reference path="action/add_item/AddItemCommand.ts" />
+/// <reference path="action/remove_item/RemoveItemCommand.ts" />
 
 class TodoListFacade {
 	model:TodoListModel;

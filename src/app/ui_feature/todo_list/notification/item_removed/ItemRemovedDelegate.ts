@@ -1,6 +1,6 @@
 /// <reference path="ItemRemovedCallback.ts" />
 /// <reference path="ItemRemovedEvent.ts" />
-/// <reference path="Delegate.ts" />
+/// <reference path="../../../common/Delegate.ts" />
 
 class ItemRemovedDelegate extends Delegate {
 	constructor( delegate:ItemRemovedCallback ) {

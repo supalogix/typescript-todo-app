@@ -1,5 +1,5 @@
-/// <reference path="TodoListModel.ts"/>
-/// <reference path="Item.ts"/>
+/// <reference path="../../model/TodoListModel.ts"/>
+/// <reference path="../../domain/Item.ts"/>
 
 class RemoveItemCommand {
 	model:TodoListModel;

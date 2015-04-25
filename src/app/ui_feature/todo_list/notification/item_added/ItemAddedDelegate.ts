@@ -1,6 +1,6 @@
 /// <reference path="ItemAddedEvent.ts" />
 /// <reference path="ItemAddedCallback.ts" />
-/// <reference path="Delegate.ts" />
+/// <reference path="../../../common/Delegate.ts" />
 
 class ItemAddedDelegate extends Delegate {
 	constructor( delegate:ItemAddedCallback ) {

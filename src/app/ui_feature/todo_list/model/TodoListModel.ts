@@ -1,7 +1,7 @@
-/// <reference path="Delegator.ts"/>
-/// <reference path="Item.ts"/>
-/// <reference path="ItemAddedEvent.ts"/>
-/// <reference path="ItemRemovedEvent.ts"/>
+/// <reference path="../../common/Delegator.ts"/>
+/// <reference path="../domain/Item.ts"/>
+/// <reference path="../notification/item_added/ItemAddedEvent.ts"/>
+/// <reference path="../notification/item_removed/ItemRemovedEvent.ts"/>
 
 class TodoListModel {
 	items;

@@ -1,4 +1,4 @@
-/// <reference path="Guid.ts"/>
+/// <reference path="../../common/Guid.ts"/>
 class Item {
 	public guid;
 	constructor( public name:string ) {
