@@ -85,10 +85,35 @@ var Guid = (function () {
 })();
 /// <reference path="../../common/Guid.ts"/>
 var Item = (function () {
-    function Item(name) {
-        this.name = name;
-        this.guid = Guid.create();
+    function Item(name, status, guid) {
+        this._guid = guid;
+        this._name = name;
+        this._status = status;
     }
+    Object.defineProperty(Item.prototype, "guid", {
+        get: function () {
+            return this._guid;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Item.prototype, "name", {
+        get: function () {
+            return this._name;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Item.prototype, "status", {
+        get: function () {
+            return this._status;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Item.prototype.clone = function () {
+        return new Item(this._guid, this._name, this._status);
+    };
     return Item;
 })();
 /// <reference path="../../../common/ModelEvent.ts"/>
