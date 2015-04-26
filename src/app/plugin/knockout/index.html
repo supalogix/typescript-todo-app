@@ -31,64 +31,96 @@
 	<script type="text/javascript">
 
 		eval( (function(){
+			var ViewModel = (function(){
+				function ViewModel( facade ) {
+					var self = this;
 
-			var ViewModel = function(facade) {
-				var self = this;
+					self.item = ko.observable('');
+					self.items = ko.observableArray();
 
-				self.item = ko.observable('');
-				self.items = ko.observableArray();
+					facade.registerItemAddedCallback(
+						new itemAddedCallback( self )
+					);
 
-				var addItemCommand = facade.getAddItemCommand();
-				var removeItemCommand = facade.getRemoveItemCommand();
-				var changeItemStatusCommand = facade.getChangeItemStatusCommand();
+					facade.registerItemRemovedCallback(
+						new itemRemovedCallback( self )
+					);
 
-				facade.registerItemAddedCallback( function(item) {
-					// Push item into list
-					self.items.push( item );
+					facade.registerItemStatusChangedCallback(
+						new itemStatusChangedCallback( self )
+					);
 
-					// clear existing input
-					self.item('');
-				});
+					self.onEnter = new onEnter( facade );
+					self.toggle = new toggle( facade );
+					self.deleteItem = new deleteItem( facade );
 
-				facade.registerItemRemovedCallback( function(item) {
-					self.items.remove( item );
-				});
-
-				facade.registerItemStatusChangedCallback( function(item) {
-
-					var match = ko.utils.arrayFirst(self.items(), function( o ) {
-						 return o.guid === item.guid;
-					});
-
-					if( match ) {
-						self.items.replace( match, item );
-					}
-
-				});
-
-				self.onEnter = function(d,e) {
-					if( e.key == "Enter" ) {
-						var name = self.item();
-						var guid = Guid.create();
-						var status = "active";
-
-						var item = new Item( name, status, guid );
-
-						addItemCommand.execute( item );
-					}
-
-					return true;
-				};
-
-
-				self.toggle = function(item) {
-					changeItemStatusCommand.execute( item );
 				}
 
-				self.deleteItem = function(item) {
-					removeItemCommand.execute(item);
-				};
-			};
+				function onEnter( facade ) {
+					return function(d,e) {
+						var self = this;
+						
+						var addItemCommand = facade.getAddItemCommand();
+
+						if( e.key == "Enter" ) {
+							var name = self.item();
+							var guid = Guid.create();
+							var status = "active";
+
+							var item = new Item( name, status, guid );
+
+							addItemCommand.execute( item );
+						}
+
+						return true;
+					}
+				}
+
+				function toggle( facade ) {
+					return function(item) {
+						var changeItemStatusCommand = facade.getChangeItemStatusCommand();
+						changeItemStatusCommand.execute( item );
+					}
+				}
+
+				function deleteItem( facade ) {
+					return function(item) {
+						var removeItemCommand = facade.getRemoveItemCommand();
+						removeItemCommand.execute(item);
+					}
+				}
+
+
+				function itemAddedCallback( context ) {
+					return function(item) {
+						// Push item into list
+						context.items.push( item );
+
+						// clear existing input
+						context.item('');
+					}
+				}
+
+				function itemRemovedCallback( context ) {
+					return function(item) {
+						context.items.remove( item );
+					}
+				}
+
+				function itemStatusChangedCallback( context ) {
+					return function(item) {
+						var match = ko.utils.arrayFirst(context.items(), function( o ) {
+							 return o.guid === item.guid;
+						});
+
+						if( match ) {
+							context.items.replace( match, item );
+						}
+					}
+				}
+
+				return ViewModel;
+			}());
 			
 			var facade = new TodoListFacade();
 			ko.applyBindings( new ViewModel(facade) );
