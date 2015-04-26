@@ -2,6 +2,7 @@
 /// <reference path="../domain/Item.ts"/>
 /// <reference path="../notification/item_added/ItemAddedEvent.ts"/>
 /// <reference path="../notification/item_removed/ItemRemovedEvent.ts"/>
+/// <reference path="../notification/item_status_changed/ItemStatusChangedEvent.ts"/>
 
 class TodoListModel {
 	items;
@@ -16,7 +17,7 @@ class TodoListModel {
 		this.items.push( item );
 		this.delegator.publish( 
 			ItemAddedEvent.getName(), 
-			new ItemAddedEvent(item) );
+			new ItemAddedEvent( item ) );
 	}
 
 	removeItem( item:Item ) {
@@ -28,6 +29,21 @@ class TodoListModel {
 				ItemRemovedEvent.getName(),
 				new ItemRemovedEvent( item ) );
 		}
+	}
+
+	updateItemStatus( item:Item ) {
+		this.items = this.items.map( function( o ) {
+			if( item.guid === o.guid ) {
+				return item;
+			}
+
+			return o;
+		});
+
+		this.delegator.publish(
+			ItemStatusChangedEvent.getName(),
+			new ItemStatusChangedEvent( item )
+		);
 	}
 
 	getSize() {

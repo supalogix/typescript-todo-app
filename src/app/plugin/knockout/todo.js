@@ -148,10 +148,24 @@ var ItemRemovedEvent = (function (_super) {
     };
     return ItemRemovedEvent;
 })(ModelEvent);
+/// <reference path="../../../common/ModelEvent.ts"/>
+/// <reference path="../../domain/Item.ts"/>
+var ItemStatusChangedEvent = (function (_super) {
+    __extends(ItemStatusChangedEvent, _super);
+    function ItemStatusChangedEvent(item) {
+        _super.call(this);
+        this.item = item;
+    }
+    ItemStatusChangedEvent.getName = function () {
+        return "ItemStatusChangedEvent";
+    };
+    return ItemStatusChangedEvent;
+})(ModelEvent);
 /// <reference path="../../common/EventDispatcher.ts"/>
 /// <reference path="../domain/Item.ts"/>
 /// <reference path="../notification/item_added/ItemAddedEvent.ts"/>
 /// <reference path="../notification/item_removed/ItemRemovedEvent.ts"/>
+/// <reference path="../notification/item_status_changed/ItemStatusChangedEvent.ts"/>
 var TodoListModel = (function () {
     function TodoListModel(delegator) {
         this.delegator = delegator;
@@ -167,6 +181,15 @@ var TodoListModel = (function () {
             this.items.splice(index, 1);
             this.delegator.publish(ItemRemovedEvent.getName(), new ItemRemovedEvent(item));
         }
+    };
+    TodoListModel.prototype.updateItemStatus = function (item) {
+        this.items = this.items.map(function (o) {
+            if (item.guid === o.guid) {
+                return item;
+            }
+            return o;
+        });
+        this.delegator.publish(ItemStatusChangedEvent.getName(), new ItemStatusChangedEvent(item));
     };
     TodoListModel.prototype.getSize = function () {
         return this.items.length;
@@ -205,6 +228,22 @@ var ItemRemovedDelegate = (function (_super) {
     };
     return ItemRemovedDelegate;
 })(Delegate);
+/// <reference path="../../domain/Item.ts" />
+/// <reference path="ItemStatusChangedCallback.ts" />
+/// <reference path="ItemStatusChangedEvent.ts" />
+/// <reference path="../../../common/Delegate.ts" />
+var ItemStatusChangedDelegate = (function (_super) {
+    __extends(ItemStatusChangedDelegate, _super);
+    function ItemStatusChangedDelegate(delegate) {
+        _super.call(this);
+        this.delegate = delegate;
+    }
+    ItemStatusChangedDelegate.prototype.execute = function (ev) {
+        var item = ev.item;
+        this.delegate(item);
+    };
+    return ItemStatusChangedDelegate;
+})(Delegate);
 /// <reference path="../../model/TodoListModel.ts"/>
 /// <reference path="../../domain/Item.ts"/>
 var AddItemCommand = (function () {
@@ -227,6 +266,25 @@ var RemoveItemCommand = (function () {
     };
     return RemoveItemCommand;
 })();
+/// <reference path="../../model/TodoListModel.ts"/>
+/// <reference path="../../domain/Item.ts"/>
+var ChangeItemStatusCommand = (function () {
+    function ChangeItemStatusCommand(model) {
+        this.model = model;
+    }
+    ChangeItemStatusCommand.prototype.execute = function (item) {
+        var guid = item.guid;
+        var status = item.status;
+        var name = item.name;
+        if (status === "active")
+            status = "completed";
+        else
+            status = "active";
+        var newItem = new Item(name, status, guid);
+        this.model.updateItemStatus(newItem);
+    };
+    return ChangeItemStatusCommand;
+})();
 /// <reference path="model/TodoListModel.ts" />
 /// <reference path="../common/EventDispatcher.ts" />
 /// <reference path="notification/item_added/ItemAddedCallback.ts" />
@@ -235,8 +293,12 @@ var RemoveItemCommand = (function () {
 /// <reference path="notification/item_removed/ItemRemovedCallback.ts" />
 /// <reference path="notification/item_removed/ItemRemovedDelegate.ts" />
 /// <reference path="notification/item_removed/ItemRemovedEvent.ts" />
+/// <reference path="notification/item_status_changed/ItemStatusChangedCallback.ts" />
+/// <reference path="notification/item_status_changed/ItemStatusChangedDelegate.ts" />
+/// <reference path="notification/item_status_changed/ItemStatusChangedEvent.ts" />
 /// <reference path="action/add_item/AddItemCommand.ts" />
 /// <reference path="action/remove_item/RemoveItemCommand.ts" />
+/// <reference path="action/change_item_status/ChangeItemStatusCommand.ts" />
 var TodoListFacade = (function () {
     function TodoListFacade() {
         this.delegator = new EventDispatcher();
@@ -248,12 +310,19 @@ var TodoListFacade = (function () {
     TodoListFacade.prototype.registerItemRemovedCallback = function (callback) {
         this.delegator.addDelegate(ItemRemovedEvent.getName(), new ItemRemovedDelegate(callback));
     };
+    TodoListFacade.prototype.registerItemStatusChangedCallback = function (callback) {
+        this.delegator.addDelegate(ItemStatusChangedEvent.getName(), new ItemStatusChangedDelegate(callback));
+    };
     TodoListFacade.prototype.getAddItemCommand = function () {
         var command = new AddItemCommand(this.model);
         return command;
     };
     TodoListFacade.prototype.getRemoveItemCommand = function () {
         var command = new RemoveItemCommand(this.model);
+        return command;
+    };
+    TodoListFacade.prototype.getChangeItemStatusCommand = function () {
+        var command = new ChangeItemStatusCommand(this.model);
         return command;
     };
     TodoListFacade.prototype.getModel = function () {
