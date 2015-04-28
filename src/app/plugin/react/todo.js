@@ -48,7 +48,9 @@ var EventDispatcher = (function () {
      * 	someone uses this class to publish an event
      */
     EventDispatcher.prototype.addDelegate = function (eventName, delegate) {
-        this.delegates[eventName] = delegate;
+        if (!this.delegates[eventName])
+            this.delegates[eventName] = [];
+        this.delegates[eventName].push(delegate);
     };
     /**
      * Publish an Event
@@ -60,8 +62,11 @@ var EventDispatcher = (function () {
      * @param ev the event that you want to publish.
      */
     EventDispatcher.prototype.publish = function (eventName, ev) {
-        var delegate = this.delegates[eventName];
-        delegate.execute(ev);
+        if (!this.delegates[eventName])
+            return;
+        this.delegates[eventName].forEach(function (delegate) {
+            delegate.execute(ev);
+        });
     };
     return EventDispatcher;
 })();

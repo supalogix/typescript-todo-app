@@ -17,7 +17,10 @@ class EventDispatcher {
 	 * 	someone uses this class to publish an event
 	 */
 	addDelegate( eventName:string, delegate:Delegate ) {
-		this.delegates[eventName] = delegate;
+		if( !this.delegates[eventName] )
+			this.delegates[eventName] = [];
+
+		this.delegates[eventName].push(delegate);
 	}
 
 	/**
@@ -30,8 +33,12 @@ class EventDispatcher {
 	 * @param ev the event that you want to publish.
 	 */
 	publish( eventName:string, ev:ModelEvent ) {
-		var delegate = this.delegates[eventName];
-		delegate.execute( ev );
+		if( !this.delegates[eventName] )
+			return;
+
+		this.delegates[eventName].forEach( function( delegate ) {
+			delegate.execute( ev );
+		});
 	}
 }
 
