@@ -21,9 +21,7 @@ var TodoItem = React.createClass({
 		return {name: name};
 	},
 	reset: function() {
-		//this.setState({
-		//	name: "" 
-		//});
+		this.setState({ name: '' });
 	},
 	handleChange: function(event) {
 		 this.setState({name: event.target.value});
@@ -42,6 +40,9 @@ var TodoItem = React.createClass({
 		if( e.which == 13 ) {
 			addItemCommand.execute( item );
 		}
+	},
+	onChange: function(e) {
+		this.setState({name: e.target.value});
 	},
 	render: function() {
 
@@ -96,7 +97,7 @@ var items = [
 ]
 
 		React.render(
-		  <TodoItem />,
+		  <TodoItem  name="Bread" />,
 		  document.getElementById('item')
 		);	
 
