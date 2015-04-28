@@ -1,0 +1,150 @@
+<html>
+	<head>
+		<script teyp="text/javascript" src="react-0.13.2.js"></script>
+		<script teyp="text/javascript" src="JSXTransformer-0.13.2.js"></script>
+		<script type="text/javascript" src="todo.js"></script>
+	</head>
+	<body>
+	<div id="content">
+		<div id="item"></div>
+		<div id="table"></div>
+	</div>
+	</body>
+	<script type="text/jsx">
+
+var facade = new TodoListFacade();
+
+
+var TodoItem = React.createClass({
+	getInitialState: function() {
+		var name = this.props.name;
+		return {name: name};
+	},
+	reset: function() {
+		this.setState({
+			name: "" 
+		});
+	},
+	handleChange: function(event) {
+		 this.setState({name: event.target.value});
+   },
+	componentDidMount: function(e) {
+		var self = this;
+		facade.registerItemAddedCallback( function(e) {
+			self.reset();		
+		});
+	},
+	onKeyUp: function(e) {
+		var addItemCommand = facade.getAddItemCommand();
+
+		var item = new Item( e.target.value, "active", Guid.create() );
+
+		if( e.which == 13 ) {
+			addItemCommand.execute( item );
+		}
+	},
+	render: function() {
+
+		return(
+			<input value={this.state.name} type="text" onChange={this.onChange} onKeyUp={this.onKeyUp}/>
+		);
+	}
+});
+
+var TodoTableMixin = {
+	changeStatus: function(e) {
+		
+		var command = facade.getChangeItemStatusCommand();
+		command.execute( e );
+	},
+	remove: function(e) {
+		var command = facade.getRemoveItemCommand();
+		command.execute( e );
+	}
+
+};
+
+var TodoTable = React.createClass({
+	mixins: [ TodoTableMixin ], // Use the mixin
+	render: function() {
+		return (
+			<table>
+				<thead>
+					<tr>
+						<th>&nbsp;</th>
+						<th>&nbsp;</th>
+						<th>&nbsp;</th>
+					</tr>
+				</thead>
+				<tbody>
+				  {this.props.items.map(function(item, i) {
+					 return [
+					 	<tr>
+							<td><a onClick={this.changeStatus.bind(this, item)} key={i} href="#">{item.status}</a></td>
+							<td>{item.name}</td>
+							<td><a onClick={this.remove.bind(this,item)} key={i} href="#">remove</a></td>
+						</tr>
+					 ];
+				  }, this)}
+				</tbody>
+			</table>
+		);
+	}
+});
+
+var items = [
+]
+
+		React.render(
+		  <TodoItem />,
+		  document.getElementById('item')
+		);	
+
+		React.render(
+		  <TodoTable items={items} />,
+		  document.getElementById('table')
+		);	
+
+
+		facade.registerItemAddedCallback(
+			function(e) {
+				items.push(e);
+
+				React.render(
+				  <TodoTable items={items} />,
+				  document.getElementById('table')
+				);	
+			}
+		);
+
+		facade.registerItemStatusChangedCallback(
+			function(e) {
+				items = items.map(function( o ) {
+					if( o.guid == e.guid ) 
+						return e;
+
+					return o;
+				});
+
+				React.render(
+				  <TodoTable items={items} />,
+				  document.getElementById('table')
+				);	
+			}
+		);
+
+		facade.registerItemRemovedCallback(
+			function(e) {
+				items = items.filter( function(o) {
+					return o.guid !== e.guid;
+				});
+
+				React.render(
+				  <TodoTable items={items} />,
+				  document.getElementById('table')
+				);	
+			}
+		);
+
+	</script>
+</html>
