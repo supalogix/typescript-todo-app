@@ -1,0 +1,77 @@
+<html>
+	<head>
+		<title>Backbone Todo POC</title>
+
+		<script type="text/javascript" src="jquery-1.11.2.min.js"></script>
+		<script type="text/javascript" src="underscore-min.js"></script>
+		<script type="text/javascript" src="backbone-min.js"></script>
+		<script type="text/javascript" src="../../todo.js"></script>
+	</head>
+	<body>
+		<input id="item" type="text" />
+		<table>
+			<thead>
+				<tr>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+				</tr>
+			</thead>
+			<tbody id="items">
+			</tbody>
+		</table>
+	</body>
+	<script type="text/javascript">
+		eval( (function() {
+			var facade = new TodoListFacade();
+
+			var InputView = Backbone.View.extend({
+				el: $("#item"),	
+				initialize: function() {
+					$(this.el).on('keyup', this.onKeyUp);
+					facade.registerItemAddedCallback( this.itemAdded.bind(this) );
+				},
+				onKeyUp: function(e) {
+					var addItemCommand = facade.getAddItemCommand();
+
+					var item = new Item( e.target.value, "active", Guid.create() );
+
+					if( e.which == 13 ) {
+						addItemCommand.execute( item );
+					}
+				},
+				itemAdded: function(e) {
+					$(this.el).val("");
+				}
+			});
+
+			var TodoListView = Backbone.View.extend({
+				el: $("#items"),
+				initialize: function() {
+					facade.registerItemAddedCallback( this.itemAdded.bind(this) );
+				},
+				events: {
+					"click .changeStatus": "changeItemStatus",
+					"click .changeStatus": "RemoveItem"
+				},
+				changeItemStatus: function(e) {
+					console.log(e);
+				},
+				removeItem: function(e) {
+				},
+				itemAdded: function(item) {
+					$(this.el).append(
+						"<tr>" +
+						"<td><a class='changeStatus' href='#'>" + item.status + "</a></td>" +
+						"<td>" + item.name + "</td>" +
+						"<td><a class='remove' href='#'>remove</a></td>" +
+						"</tr>"
+					);
+				}
+			});
+
+			var inputView = new InputView();
+			var todoListView = new TodoListView();
+		})() );
+	</script>
+</html>
