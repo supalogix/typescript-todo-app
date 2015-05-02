@@ -23,28 +23,117 @@
 	</body>
 	<script type="text/javascript">
 		eval( (function() {
+			/// ===================================================================
+			/// Get a Reference to a Facade
+			/// ===================================================================
+			///
 			var facade = new TodoListFacade();
 
-			var InputView = Backbone.View.extend({
-				el: $("#item"),	
+
+			/// ===================================================================
+			/// Define our Item
+			/// ===================================================================
+			///
+			var BackboneItem = Backbone.Model.extend({
+				defaults: {
+					guid: "not initialized",
+					name: "not initialized",
+					artist: "not initialized"
+
+				},
 				initialize: function() {
+				}
+			});
+
+			/// ===================================================================
+			/// Define a Collection of Items
+			/// ===================================================================
+			///
+			var BackboneTodoList = Backbone.Model.extend({
+				model: BackboneItem
+			});
+
+			/**
+			 * Define a View for an InputBox
+			 *
+			 */
+			var InputView = Backbone.View.extend({
+				/**
+				 * Set the Context for this View
+				 *
+				 * We assume that the webpage has a DOM element with id "item". We
+				 * use JQuery to grab a reference to that DOM element and assign it 
+				 * to the 'el' variable
+				 *
+				 */
+				el: $("#item"),	
+
+				/**
+				 * Initialize the View
+				 *
+				 */
+				initialize: function() {
+					/**
+					 * Attach an Event Listener For a KeyPress
+					 *
+					 */
 					$(this.el).on('keyup', this.onKeyUp);
+
+					/**
+					 * Register a Callback for the ItemAddedEvent
+					 *
+					 */
 					facade.registerItemAddedCallback( this.itemAdded.bind(this) );
 				},
+
+				/**
+				 * Define the Listener for a KeyPress
+				 *
+				 */
 				onKeyUp: function(e) {
-					var addItemCommand = facade.getAddItemCommand();
 
-					var item = new Item( e.target.value, "active", Guid.create() );
-
+					/**
+					 * Detect the Enter Key
+					 *
+					 */
 					if( e.which == 13 ) {
+						/** 
+						 * Get a Reference to an AddItemCommand
+						 *
+						 */
+						var addItemCommand = facade.getAddItemCommand();
+
+						/**
+						 * Create a New Item
+						 *
+						 */
+						var item = new Item( 
+							e.target.value, 
+							"active", 
+							Guid.create() );
+
+						/** 
+						 * Execute the Command 
+						 *
+						 */
 						addItemCommand.execute( item );
 					}
 				},
+				/**
+				 * Define the Callback for an ItemAddedEvent
+				 */
 				itemAdded: function(e) {
+					/**
+					 * Clear the input field
+					 */
 					$(this.el).val("");
 				}
 			});
 
+			/**
+			 * Define a View for The TodoList
+			 *
+			 */
 			var TodoListView = Backbone.View.extend({
 				el: $("#items"),
 				initialize: function() {
