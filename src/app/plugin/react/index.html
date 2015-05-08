@@ -12,140 +12,199 @@
 	</body>
 	<script type="text/jsx">
 
-var facade = new TodoListFacade();
 
+	/**
+	 * Get a reference to the TodoList Facade
+	 */
+	var facade = new TodoListFacade();
 
-var TodoItem = React.createClass({
-	getInitialState: function() {
-		var name = this.props.name;
-		return {name: name};
-	},
-	reset: function() {
-		this.setState({ name: '' });
-	},
-	handleChange: function(event) {
-		 this.setState({name: event.target.value});
-   },
-	componentDidMount: function(e) {
-		var self = this;
-		facade.registerItemAddedCallback( function(e) {
-			self.reset();		
-		});
-	},
-	onKeyUp: function(e) {
-		var addItemCommand = facade.getAddItemCommand();
+	/**
+	 * Implicit model for TodoList UI
+	 *
+	 * We store items in an array for simplicity
+	 */
+	var items = []
 
-		var item = new Item( e.target.value, "active", Guid.create() );
+	/**
+	 * Define a View for a TodoItem
+	 *
+	 * The user uses an input box create an TodoItems
+	 * 
+	 * This class encapsulates the algorithms associated with
+	 * interpreting user interface interactions.
+	 */
+	var TodoItem = React.createClass({
+		getInitialState: function() {
+			var name = this.props.name;
+			return {name: name};
+		},
+		reset: function() {
+			this.setState({ name: '' });
+		},
+		handleChange: function(event) {
+			 this.setState({name: event.target.value});
+		},
+		componentDidMount: function(e) {
+			var self = this;
+			facade.registerItemAddedCallback( function(e) {
+				self.reset();		
+			});
+		},
+		onKeyUp: function(e) {
+			var addItemCommand = facade.getAddItemCommand();
 
-		if( e.which == 13 ) {
-			addItemCommand.execute( item );
+			var item = new Item( e.target.value, "active", Guid.create() );
+
+			if( e.which == 13 ) {
+				addItemCommand.execute( item );
+			}
+		},
+		onChange: function(e) {
+			this.setState({name: e.target.value});
+		},
+		render: function() {
+
+			return(
+				<input value={this.state.name} type="text" onChange={this.onChange} onKeyUp={this.onKeyUp}/>
+			);
 		}
-	},
-	onChange: function(e) {
-		this.setState({name: e.target.value});
-	},
-	render: function() {
+	});
 
-		return(
-			<input value={this.state.name} type="text" onChange={this.onChange} onKeyUp={this.onKeyUp}/>
-		);
-	}
-});
+	/**
+	 * Define a Mixin of Event Handlers for a TodoList UI
+	 *
+	 * We encapsulate the algorithms associated with the TodoList view
+	 * inside of a mixin. I
+	 *
+	 * It provides a cleaner seperation of concerns than embedding it in
+	 * the TodoList UI itself
+	 */
+	var TodoTableMixin = {
+		/**
+		 * Catch Click Event for a Request to Change the Status of an Item
+		 */
+		changeStatus: function(e) {
+			
+			var command = facade.getChangeItemStatusCommand();
+			command.execute( e );
+		},
+		/**
+		 * Catch Click Event for a Request to Remove an Item
+		 */
+		remove: function(e) {
+			var command = facade.getRemoveItemCommand();
+			command.execute( e );
+		}
 
-var TodoTableMixin = {
-	changeStatus: function(e) {
-		
-		var command = facade.getChangeItemStatusCommand();
-		command.execute( e );
-	},
-	remove: function(e) {
-		var command = facade.getRemoveItemCommand();
-		command.execute( e );
-	}
+	};
 
-};
-
-var TodoTable = React.createClass({
-	mixins: [ TodoTableMixin ], // Use the mixin
-	render: function() {
-		return (
-			<table>
-				<thead>
-					<tr>
-						<th>&nbsp;</th>
-						<th>&nbsp;</th>
-						<th>&nbsp;</th>
-					</tr>
-				</thead>
-				<tbody>
-				  {this.props.items.map(function(item, i) {
-					 return [
-					 	<tr>
-							<td><a onClick={this.changeStatus.bind(this, item)} key={i} href="#">{item.status}</a></td>
-							<td>{item.name}</td>
-							<td><a onClick={this.remove.bind(this,item)} key={i} href="#">remove</a></td>
+	/**
+	 * Define a View for a TodoList
+	 */
+	var TodoTable = React.createClass({
+		mixins: [ TodoTableMixin ], // Use the mixin
+		render: function() {
+			return (
+				<table>
+					<thead>
+						<tr>
+							<th>&nbsp;</th>
+							<th>&nbsp;</th>
+							<th>&nbsp;</th>
 						</tr>
-					 ];
-				  }, this)}
-				</tbody>
-			</table>
-		);
-	}
-});
-
-var items = [
-]
-
-		React.render(
-		  <TodoItem  name="Bread" />,
-		  document.getElementById('item')
-		);	
-
-		React.render(
-		  <TodoTable items={items} />,
-		  document.getElementById('table')
-		);	
+					</thead>
+					<tbody>
+					  {this.props.items.map(function(item, i) {
+						 return [
+							<tr>
+								<td><a onClick={this.changeStatus.bind(this, item)} key={i} href="#">{item.status}</a></td>
+								<td>{item.name}</td>
+								<td><a onClick={this.remove.bind(this,item)} key={i} href="#">remove</a></td>
+							</tr>
+						 ];
+					  }, this)}
+					</tbody>
+				</table>
+			);
+		}
+	});
 
 
-		facade.registerItemAddedCallback(
-			function(e) {
-				items.push(e);
 
-				React.render(
-				  <TodoTable items={items} />,
-				  document.getElementById('table')
-				);	
-			}
-		);
+	/**
+	 * Register Callback for ItemAddedEvent
+	 *
+	 * Add an Item to the TodoList when the model fires an
+	 * ItemAddedEvent. 
+	 *
+	 * Rerender the view
+	 */
+	facade.registerItemAddedCallback(
+		function(e) {
+			items.push(e);
 
-		facade.registerItemStatusChangedCallback(
-			function(e) {
-				items = items.map(function( o ) {
-					if( o.guid == e.guid ) 
-						return e;
+			React.render(
+			  <TodoTable items={items} />,
+			  document.getElementById('table')
+			);	
+		}
+	);
 
-					return o;
-				});
+	/**
+	 * Register Callback for ItemStatusChangedEvent
+	 *
+	 * Change an item in the TodoList when the model fires an
+	 * ItemStatusChangedEvent. 
+	 *
+	 * Rerender the view
+	 */
+	facade.registerItemStatusChangedCallback(
+		function(e) {
+			items = items.map(function( o ) {
+				if( o.guid == e.guid ) 
+					return e;
 
-				React.render(
-				  <TodoTable items={items} />,
-				  document.getElementById('table')
-				);	
-			}
-		);
+				return o;
+			});
 
-		facade.registerItemRemovedCallback(
-			function(e) {
-				items = items.filter( function(o) {
-					return o.guid !== e.guid;
-				});
+			React.render(
+			  <TodoTable items={items} />,
+			  document.getElementById('table')
+			);	
+		}
+	);
 
-				React.render(
-				  <TodoTable items={items} />,
-				  document.getElementById('table')
-				);	
-			}
-		);
+	/**
+	 * Register Callback for ItemRemovedEvent
+	 *
+	 * Remove an item in the TodoList when the model fires an
+	 * ItemRemovedEvent.
+	 *
+	 * Rerender the view
+	 */
+	facade.registerItemRemovedCallback(
+		function(e) {
+			items = items.filter( function(o) {
+				return o.guid !== e.guid;
+			});
+
+			React.render(
+			  <TodoTable items={items} />,
+			  document.getElementById('table')
+			);	
+		}
+	);
+
+
+	React.render(
+	  <TodoItem  name="" />,
+	  document.getElementById('item')
+	);	
+
+	React.render(
+	  <TodoTable items={items} />,
+	  document.getElementById('table')
+	);	
 
 	</script>
 </html>
