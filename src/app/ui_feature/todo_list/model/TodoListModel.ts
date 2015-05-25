@@ -10,44 +10,109 @@ class TodoListModel {
 
 	constructor( delegator:EventDispatcher ) {
 		this.delegator = delegator;
-		this.items = [];
+		//this.items = [];
+		this.items = {};
 	}
 
 	addItem( item:Item ) {
-		this.items.push( item );
+		var guid:string = item.guid
+
+		if( guid in this.items  )
+			throw Error("You cannot enter the same item twice");
+
+		this.items[guid] = [];
+		this.items[guid].push( item );
+
 		this.delegator.publish( 
 			ItemAddedEvent.getName(), 
 			new ItemAddedEvent( item ) );
 	}
 
-	removeItem( item:Item ) {
-		var index = this.items.indexOf( item );
+	removeItem( guid:string ) {
+		if( !this.items[guid] )
+			throw Error("An item with this guid does not exist");
+
+		var length = this.items[guid].length;
+		var item = this.items[guid][length-1];
+
+		var newItem = new Item( 
+			item.name(),
+			"deleted",
+			item.guid()
+		);
+
+		this.items[guid].push(newItem);
 		
-		if( index > -1 )  {
-			this.items.splice( index, 1 );
-			this.delegator.publish(
-				ItemRemovedEvent.getName(),
-				new ItemRemovedEvent( item ) );
-		}
+		this.delegator.publish(
+			ItemRemovedEvent.getName(),
+			new ItemRemovedEvent( item ) );
 	}
 
-	updateItemStatus( item:Item ) {
-		this.items = this.items.map( function( o ) {
-			if( item.guid === o.guid ) {
-				return item;
-			}
+	updateItemStatus( guid:string, status:string ) {
+		if( !this.items[guid] )
+			throw Error("An item with this guid does not exist");
 
-			return o;
-		});
+		var length = this.items[guid].length;
+		var item = this.items[guid][length-1];
+
+		var newItem = new Item( 
+			item.name(),
+			status,
+			item.guid()
+		);
+
+		this.items[guid].push(newItem);
 
 		this.delegator.publish(
 			ItemStatusChangedEvent.getName(),
-			new ItemStatusChangedEvent( item )
+			new ItemStatusChangedEvent( newItem )
 		);
 	}
 
+	getDeletedItems() {
+		var items = this.items.map( function( o ) {
+			if( o.status === "deleted" ) {
+				return item;
+			}
+		});
+
+		return items;
+	}
+
+	getActiveItems() {
+
+		var array = [];
+
+		for( var guid in this.items ) {
+
+			var length = this.items[guid].length;
+			var item = this.items[guid][ length - 1 ];
+
+			if( item.status === "active" )
+				array.push( item );
+		}
+
+		return array;
+	}
+
+	getCompletedItems() {
+		var items = this.items.map( function( o ) {
+			if( o.status === "completed" ) {
+				return item;
+			}
+		});
+
+		return items;
+	}
+
 	getSize() {
-		return this.items.length;
+		var items = this.items.map( function( o ) {
+			if( o.status !== "deleted" ) {
+				return item;
+			}
+		});
+
+		return items.length;
 	}
 }
 

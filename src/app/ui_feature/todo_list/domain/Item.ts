@@ -1,14 +1,20 @@
 /// <reference path="../../common/Guid.ts"/>
 
 class Item {
+	private _id;
 	private _guid;
 	private _name;
 	private _status;
 
 	constructor( name:string, status:string, guid:string ) {
+		this._id = Guid.create();
 		this._guid = guid;
 		this._name = name;
 		this._status = status;
+	}
+
+	get id():string {
+		return this._id;
 	}
 
 	get guid():string {
@@ -24,6 +30,6 @@ class Item {
 	}
 
 	clone() {
-		return new Item( this._guid, this._name, this._status );
+		return new Item( this._name, this._status, this._guid );
 	}
 }

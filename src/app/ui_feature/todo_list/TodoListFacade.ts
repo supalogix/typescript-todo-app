@@ -15,29 +15,41 @@
 
 class TodoListFacade {
 	model:TodoListModel;
-	delegator:EventDispatcher;
+	dispatcher:EventDispatcher;
 
 	constructor() {
-		this.delegator = new EventDispatcher();
-		this.model = new TodoListModel( this.delegator );
+		this.dispatcher = new EventDispatcher();
+		this.model = new TodoListModel( this.dispatcher );
 	}
 
 	registerItemAddedCallback( callback:ItemAddedCallback ) {
-		this.delegator.addDelegate( 
+		this.dispatcher.addDelegate( 
 			ItemAddedEvent.getName(), 
 			new ItemAddedDelegate(callback) );
 	}
 
 	registerItemRemovedCallback( callback:ItemRemovedCallback ) {
-		this.delegator.addDelegate( 
+		this.dispatcher.addDelegate( 
 			ItemRemovedEvent.getName(),
 			new ItemRemovedDelegate(callback) );
 	}
 
 	registerItemStatusChangedCallback( callback:ItemStatusChangedCallback ) {
-		this.delegator.addDelegate( 
+		this.dispatcher.addDelegate( 
 			ItemStatusChangedEvent.getName(),
 			new ItemStatusChangedDelegate(callback) );
+	}
+
+	addItem( name:string ) {
+		model.addItem( name, "active" );
+	}
+
+	removeItem( guid:string ) {
+		model.removeItem( guid );
+	}
+
+	changeItemStatus( guid:string, status:string ) {
+		model.changeItemStatus( guid, status );
 	}
 
 	getAddItemCommand():AddItemCommand {
