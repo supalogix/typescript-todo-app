@@ -1,11 +1,9 @@
-fs = require('fs')
-path = require('path')
-eval( fs.readFileSync(process.env.TODO_APP,'utf-8') )
-eval( fs.readFileSync(
-   path.resolve(
-      __dirname, 
-      "testSutShouldCallItemStatusChangedDelegate.js" ), 
-   'utf-8') )
+var todo = require( process.env.TEST_DIR + "/bootstrap.js" ),
+	mainApp = todo.getFile(process.env.TODO_APP),
+	thisDir = todo.getDir( __dirname );
+
+eval(mainApp);
+eval(thisDir.getFile("testSutShouldCallItemStatusChangedDelegate.js"));
 
 /**
  * 
