@@ -1,6 +1,9 @@
 /// <reference path="../../model/TodoListModel.ts"/>
 /// <reference path="../../domain/Item.ts"/>
 
+/**
+ * @todo: change this to use only the guid
+ */
 class ChangeItemStatusCommand {
 	model:TodoListModel;
 
@@ -19,7 +22,7 @@ class ChangeItemStatusCommand {
 			status = "active";
 
 		var newItem:Item = new Item( name, status, guid );
-		this.model.updateItemStatus( newItem );
+		//this.model.updateItemStatus( newItem );
 	}
 }
 

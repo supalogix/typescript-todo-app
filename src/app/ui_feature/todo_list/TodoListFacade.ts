@@ -41,15 +41,15 @@ class TodoListFacade {
 	}
 
 	addItem( name:string ) {
-		model.addItem( name, "active" );
+		this.model.addItem( new Item(name, "active", Guid.create() ) );
 	}
 
 	removeItem( guid:string ) {
-		model.removeItem( guid );
+		this.model.removeItem( guid );
 	}
 
 	changeItemStatus( guid:string, status:string ) {
-		model.changeItemStatus( guid, status );
+		this.model.changeItemStatus( guid, status );
 	}
 
 	getAddItemCommand():AddItemCommand {

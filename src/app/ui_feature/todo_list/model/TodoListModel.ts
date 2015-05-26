@@ -6,10 +6,10 @@
 
 class TodoListModel {
 	items;
-	delegator:EventDispatcher;
+	eventDispatcher:EventDispatcher;
 
-	constructor( delegator:EventDispatcher ) {
-		this.delegator = delegator;
+	constructor( eventDispatcher:EventDispatcher ) {
+		this.eventDispatcher = eventDispatcher;
 		//this.items = [];
 		this.items = {};
 	}
@@ -23,7 +23,7 @@ class TodoListModel {
 		this.items[guid] = [];
 		this.items[guid].push( item );
 
-		this.delegator.publish( 
+		this.eventDispatcher.publish( 
 			ItemAddedEvent.getName(), 
 			new ItemAddedEvent( item ) );
 	}
@@ -36,19 +36,20 @@ class TodoListModel {
 		var item = this.items[guid][length-1];
 
 		var newItem = new Item( 
-			item.name(),
+			item.name,
 			"deleted",
-			item.guid()
+			item.guid
 		);
 
 		this.items[guid].push(newItem);
 		
-		this.delegator.publish(
+		this.eventDispatcher.publish(
 			ItemRemovedEvent.getName(),
 			new ItemRemovedEvent( item ) );
 	}
 
-	updateItemStatus( guid:string, status:string ) {
+	changeItemStatus( guid:string, status:string ) {
+
 		if( !this.items[guid] )
 			throw Error("An item with this guid does not exist");
 
@@ -56,14 +57,14 @@ class TodoListModel {
 		var item = this.items[guid][length-1];
 
 		var newItem = new Item( 
-			item.name(),
+			item.name,
 			status,
-			item.guid()
+			item.guid
 		);
 
 		this.items[guid].push(newItem);
 
-		this.delegator.publish(
+		this.eventDispatcher.publish(
 			ItemStatusChangedEvent.getName(),
 			new ItemStatusChangedEvent( newItem )
 		);
@@ -72,7 +73,7 @@ class TodoListModel {
 	getDeletedItems() {
 		var items = this.items.map( function( o ) {
 			if( o.status === "deleted" ) {
-				return item;
+				return o;
 			}
 		});
 
@@ -98,7 +99,7 @@ class TodoListModel {
 	getCompletedItems() {
 		var items = this.items.map( function( o ) {
 			if( o.status === "completed" ) {
-				return item;
+				return o;
 			}
 		});
 
@@ -108,7 +109,7 @@ class TodoListModel {
 	getSize() {
 		var items = this.items.map( function( o ) {
 			if( o.status !== "deleted" ) {
-				return item;
+				return o;
 			}
 		});
 

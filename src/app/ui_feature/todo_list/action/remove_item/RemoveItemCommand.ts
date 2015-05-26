@@ -1,6 +1,9 @@
 /// <reference path="../../model/TodoListModel.ts"/>
 /// <reference path="../../domain/Item.ts"/>
 
+/**
+ * @todo: change this to use only the guid
+ */
 class RemoveItemCommand {
 	model:TodoListModel;
 
@@ -9,7 +12,7 @@ class RemoveItemCommand {
 	}
 
 	execute( item:Item ) {
-		this.model.removeItem( item );
+		//this.model.removeItem( item );
 	}
 }
 

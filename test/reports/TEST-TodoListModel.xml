@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <testsuites>
-<testsuite name="TodoListModel" errors="0" tests="1" failures="0" time="0.006" timestamp="2015-05-09T23:36:24">
-  <testcase classname="TodoListModel" name="can add an item" time="0.005"></testcase>
+<testsuite name="TodoListModel" errors="0" tests="1" failures="0" time="0.006" timestamp="2015-05-25T17:07:20">
+  <testcase classname="TodoListModel" name="can add an item" time="0.006"></testcase>
 </testsuite>
 </testsuites>
